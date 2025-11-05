@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Histogram Viewer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+
+    /* Tab navigation */
+    .tab-bar {
+      display: flex;
+      border-bottom: 2px solid #ccc;
+      background: #f4f4f4;
+    }
+    .tab-bar a {
+      padding: 10px 20px;
+      text-decoration: none;
+      color: black;
+      border: 1px solid #ccc;
+      border-bottom: none;
+      background: #f9f9f9;
+      margin-right: 5px;
+      border-radius: 5px 5px 0 0;
+    }
+    .tab-bar a.active {
+      background: white;
+      font-weight: bold;
+      border-bottom: 2px solid white;
+    }
+
+    /* Page container */
+    .container {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    h1.title {
+      text-align: center;
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+
+    /* Layout for dropdowns + image */
+    .content {
+      display: flex;
+      gap: 20px;
+      justify-content: space-between;
+    }
+
+    .dropdowns {
+      flex-basis: 35%;
+    }
+    label {
+      display: block;
+      font-size: 18px;
+      margin: 10px 0 5px;
+    }
+    select {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .image-container {
+      flex-basis: 65%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    img {
+      max-width: 100%;
+      border: 2px solid black;
+    }
+
+    .notes {
+      margin-top: 20px;
+      font-size: 16px;
+      line-height: 1.5;
+      border-top: 1px solid #ccc;
+      padding-top: 10px;
+    }
+
+    @media (max-width: 768px) {
+      .content {
+        flex-direction: column;
+      }
+      .dropdowns, .image-container {
+        flex-basis: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Tab Navigation -->
+<div class="tab-bar">
+  <a href="index.html" class="active">Overview</a>
+  <a href="flowchart.html">Flowchart</a>
+  <a href="histogram.html">Histogram Viewer</a>
+  <a href="simulation results.html">Simulation Results</a>
+  <a href="code and examples.html">Code and Examples</a>
+  <a href="R package.html">R Package</a>
+</div>
+
+  <!-- Main Content -->
+  <div class="container">
+    <h1 class="title">Select Method, Sample Size, and Intercept</h1>
+
+    <div class="content">
+      <!-- Dropdowns -->
+      <div class="dropdowns">
+        <label for="method">Method:</label>
+        <select id="method">
+          <option value="endog">OLS</option>
+          <option value="copula_IKDE">copula_IKDE</option>
+          <option value="copula_Fixed">copula_Fixed</option>
+          <option value="copula_Adaptive">copula_Adaptive</option>
+        </select>
+
+        <label for="samplesize">Sample Size:</label>
+        <select id="samplesize">
+          <option value="100">100</option>
+          <option value="200">200</option>
+          <option value="400">400</option>
+          <option value="600">600</option>
+          <option value="800">800</option>
+          <option value="1000">1000</option>
+          <option value="2000">2000</option>
+          <option value="4000">4000</option>
+          <option value="6000">6000</option>
+          <option value="8000">8000</option>
+          <option value="10000">10000</option>
+          <option value="20000">20000</option>
+          <option value="40000">40000</option>
+          <option value="60000">60000</option>
+        </select>
+
+        <label for="intercept">Intercept:</label>
+        <select id="intercept">
+          <option value="i">With Intercept</option>
+          <option value="">Without Intercept</option>
+        </select>
+      </div>
+
+      <!-- Image -->
+      <div class="image-container">
+        <img id="histogram" src="" alt="Selected Histogram">
+      </div>
+    </div>
+
+    <div class="notes">
+      <strong>For “method”:</strong>
+      <ul>
+        <li><strong>OLS:</strong> Ordinary Least Squares.</li>
+        <li><strong>Copula_IKDE:</strong> Uses integrated kernel density estimates.</li>
+        <li><strong>Copula_Fixed:</strong> Empirical CDF with max percentile set to 0.9999999.</li>
+        <li><strong>Copula_Adaptive:</strong> Empirical CDF with max percentile set to n/(n+1).</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    function getVariableName(method, intercept) {
+      if (method === 'endog') {
+        return 'endog' + (intercept === 'i' ? '.i.param_p' : '.param_p');
+      } else if (method === 'copula_IKDE') {
+        return 'copula.' + (intercept === 'i' ? 'id' : 'd') + '.param_p';
+      } else if (method === 'copula_Fixed') {
+        return 'copula' + (intercept === 'i' ? '.i.param_p' : '.param_p');
+      } else if (method === 'copula_Adaptive') {
+        return 'copulaA' + (intercept === 'i' ? '.i.param_p' : '.param_p');
+      }
+    }
+
+    function updateHistogram() {
+      var method = document.getElementById('method').value;
+      var samplesize = document.getElementById('samplesize').value;
+      var intercept = document.getElementById('intercept').value;
+
+      var variableName = getVariableName(method, intercept);
+      var imagePath = `histograms/histogram_${variableName}_size_${samplesize}.png`;
+
+      document.getElementById('histogram').src = imagePath;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('method').addEventListener('change', updateHistogram);
+      document.getElementById('samplesize').addEventListener('change', updateHistogram);
+      document.getElementById('intercept').addEventListener('change', updateHistogram);
+      updateHistogram();
+    });
+  </script>
+
+</body>
+</html>

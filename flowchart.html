@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flowchart Decision Tool</title>
+  <style>
+    body {
+      font-family: 'STIX Two Math', 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+
+    /* Tab navigation */
+    .tab-bar {
+      display: flex;
+      border-bottom: 2px solid #ccc;
+      background: #f4f4f4;
+    }
+    .tab-bar a {
+      padding: 10px 20px;
+      text-decoration: none;
+      color: black;
+      border: 1px solid #ccc;
+      border-bottom: none;
+      background: #f9f9f9;
+      margin-right: 5px;
+      border-radius: 5px 5px 0 0;
+    }
+    .tab-bar a.active {
+      background: white;
+      font-weight: bold;
+      border-bottom: 2px solid white;
+    }
+
+    /* Single panel styling */
+    .container {
+      max-width: 700px;
+      margin: 30px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+      display: none; /* hidden initially */
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    select, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      font-size: 16px;
+    }
+
+    .result {
+      padding: 20px;
+      background: #d4edda;
+      border: 1px solid #c3e6cb;
+      border-radius: 5px;
+      color: #155724;
+      font-weight: bold;
+      display: none;
+      text-align: center;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+ <!-- Tab Navigation -->
+<div class="tab-bar">
+  <a href="index.html" class="active">Overview</a>
+  <a href="flowchart.html">Flowchart</a>
+  <a href="histogram.html">Histogram Viewer</a>
+  <a href="simulation results.html">Simulation Results</a>
+  <a href="code and examples.html">Code and Examples</a>
+  <a href="R package.html">R Package</a>
+</div>
+
+  <!-- Main panel -->
+  <div class="container">
+    <h1>Flowchart Decision Tool</h1>
+    <p>Decide to use copula according to Table 2 among the methods in Table 1. If Yes:</p>
+
+    <!-- Step 1 -->
+    <div class="form-group" id="step1">
+      <label for="p_main_continuous">Step 1: Is P<sub>main</sub> continuous?</label>
+      <select id="p_main_continuous" onchange="handleStep1Change()">
+        <option value="">Select...</option>
+        <option value="yes">Yes</option>
+        <option value="no">No</option>
+      </select>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="form-group" id="step2">
+      <label for="p_main_normal">Step 2: Is P<sub>main</sub> normally distributed?</label>
+      <select id="p_main_normal" onchange="showNextStep()">
+        <option value="">Select...</option>
+        <option value="yes">Yes</option>
+        <option value="no">No</option>
+      </select>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="form-group" id="step3">
+      <label id="step3a" style="display: none;">
+        Step 3.a: Is &Sigma; P<sub>t,k</sub> &times; &gamma;<sub>k</sub> correlated with W?
+        <select id="correlation" onchange="showEvaluateButton()">
+          <option value="">Select...</option>
+          <option value="yes">Yes</option>
+          <option value="no">No</option>
+        </select>
+      </label>
+      <label id="step3b" style="display: none;">
+        Step 3.b: Is at least one exogenous W continuous, significantly non-normal, and sufficiently relevant?
+        <select id="exogenous_w" onchange="showEvaluateButton()">
+          <option value="">Select...</option>
+          <option value="yes">Yes</option>
+          <option value="no">No</option>
+        </select>
+      </label>
+    </div>
+
+    <button id="evaluateButton" onclick="evaluateFlowchart()">Evaluate</button>
+
+    <div class="result" id="result">Result will be displayed here</div>
+  </div>
+
+  <script>
+    function handleStep1Change() {
+      const p_main_continuous = document.getElementById('p_main_continuous').value;
+      const step2 = document.getElementById('step2');
+      const step3 = document.getElementById('step3');
+
+      if (p_main_continuous === 'no') {
+        document.getElementById('result').style.display = 'block';
+        document.getElementById('result').textContent = "Use SORE (Qian and Xie 2024) if P_main is discrete";
+        step2.style.display = 'none';
+        step3.style.display = 'none';
+      } else if (p_main_continuous === 'yes') {
+        step2.style.display = 'block';
+      }
+    }
+
+    function showNextStep() {
+      const p_main_normal = document.getElementById('p_main_normal').value;
+      const step3 = document.getElementById('step3');
+      if (p_main_normal) {
+        step3.style.display = 'block';
+        document.getElementById('step3a').style.display = p_main_normal === 'no' ? 'block' : 'none';
+        document.getElementById('step3b').style.display = p_main_normal === 'yes' ? 'block' : 'none';
+      }
+    }
+
+    function determineMethod(P_main_continuous, P_main_normal, sum_Ptk_gamma_k_correlated, W_continuous_and_relevant) {
+      if (!P_main_continuous) return "Use SORE (Qian and Xie 2024) if P_main is discrete";
+      if (P_main_normal) return W_continuous_and_relevant ? "2sCOPE" : "Check potential bias using bootstrap";
+      return sum_Ptk_gamma_k_correlated ? "2sCOPE or MLE (Hashka 2022 or SORE)" : "P&G";
+    }
+
+    function evaluateFlowchart() {
+      const p_main_continuous = document.getElementById('p_main_continuous').value === 'yes';
+      const p_main_normal = document.getElementById('p_main_normal').value === 'yes';
+      const correlation = document.getElementById('correlation').value === 'yes';
+      const exogenous_w = document.getElementById('exogenous_w').value === 'yes';
+
+      const result = determineMethod(p_main_continuous, p_main_normal, correlation, exogenous_w);
+
+      const resultDiv = document.getElementById('result');
+      resultDiv.style.display = 'block';
+      resultDiv.textContent = result;
+    }
+
+    document.getElementById('step1').style.display = 'block';
+  </script>
+
+</body>
+</html>
