@@ -1,192 +1,221 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Flowchart Decision Tool</title>
-  <style>
-    body {
-      font-family: 'STIX Two Math', 'Arial', sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #f4f4f4;
-    }
-
-    /* Tab navigation */
-    .tab-bar {
-      display: flex;
-      border-bottom: 2px solid #ccc;
-      background: #f4f4f4;
-    }
-    .tab-bar a {
-      padding: 10px 20px;
-      text-decoration: none;
-      color: black;
-      border: 1px solid #ccc;
-      border-bottom: none;
-      background: #f9f9f9;
-      margin-right: 5px;
-      border-radius: 5px 5px 0 0;
-    }
-    .tab-bar a.active {
-      background: white;
-      font-weight: bold;
-      border-bottom: 2px solid white;
-    }
-
-    /* Single panel styling */
-    .container {
-      max-width: 700px;
-      margin: 30px auto;
-      background: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-
-    h1 {
-      text-align: center;
-    }
-
-    .form-group {
-      margin-bottom: 15px;
-      display: none; /* hidden initially */
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 5px;
-    }
-
-    select, button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      font-size: 16px;
-    }
-
-    .result {
-      padding: 20px;
-      background: #d4edda;
-      border: 1px solid #c3e6cb;
-      border-radius: 5px;
-      color: #155724;
-      font-weight: bold;
-      display: none;
-      text-align: center;
-      margin-top: 20px;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flowchart Decision Tool</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f4f4f4; margin:0; padding:0; }
+  .tab-bar {
+    display: flex;
+    border-bottom: 2px solid #ccc;
+    background: #f4f4f4;
+  }
+  .tab-bar a {
+    padding: 10px 20px;
+    text-decoration: none;
+    color: black;
+    border: 1px solid #ccc;
+    border-bottom: none;
+    background: #f9f9f9;
+    margin-right: 5px;
+    border-radius: 5px 5px 0 0;
+  }
+  .tab-bar a.active { background: white; font-weight: bold; border-bottom: 2px solid white; }
+  .container { max-width: 700px; margin: 40px auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);}
+  h1 { text-align: center; }
+  .form-group { margin-bottom: 20px; display:none; }
+  label { display:block; margin-bottom:5px; }
+  select { width:100%; padding:10px; font-size:16px; }
+  .result { display:none; margin-top:20px; background:#d4edda; border:1px solid #c3e6cb; padding:15px; border-radius:6px; color:#155724; font-weight:bold; text-align:center; }
+</style>
 </head>
 <body>
 
- <!-- Tab Navigation -->
+<!-- Tab Navigation -->
 <div class="tab-bar">
   <a href="index.html">Overview</a>
   <a href="flowchart.html" class="active">Flowchart</a>
   <a href="histogram.html">Histogram Viewer</a>
-  <a href="simulation results.html">Simulation Results</a>
   <a href="code and examples.html">Code and Examples</a>
   <a href="R package.html">R Package</a>
 </div>
 
-  <!-- Main panel -->
-  <div class="container">
-    <h1>Flowchart Decision Tool</h1>
-    <p>Decide to use copula according to Table 2 among the methods in Table 1. If Yes:</p>
+<div class="container">
+  <h1>Flowchart Decision Tool</h1>
 
-    <!-- Step 1 -->
-    <div class="form-group" id="step1">
-      <label for="p_main_continuous">Step 1: Is P<sub>main</sub> continuous?</label>
-      <select id="p_main_continuous" onchange="handleStep1Change()">
-        <option value="">Select...</option>
-        <option value="yes">Yes</option>
-        <option value="no">No</option>
-      </select>
-    </div>
-
-    <!-- Step 2 -->
-    <div class="form-group" id="step2">
-      <label for="p_main_normal">Step 2: Is P<sub>main</sub> normally distributed?</label>
-      <select id="p_main_normal" onchange="showNextStep()">
-        <option value="">Select...</option>
-        <option value="yes">Yes</option>
-        <option value="no">No</option>
-      </select>
-    </div>
-
-    <!-- Step 3 -->
-    <div class="form-group" id="step3">
-      <label id="step3a" style="display: none;">
-        Step 3.a: Is &Sigma; P<sub>t,k</sub> &times; &gamma;<sub>k</sub> correlated with W?
-        <select id="correlation" onchange="showEvaluateButton()">
-          <option value="">Select...</option>
-          <option value="yes">Yes</option>
-          <option value="no">No</option>
-        </select>
-      </label>
-      <label id="step3b" style="display: none;">
-        Step 3.b: Is at least one exogenous W continuous, significantly non-normal, and sufficiently relevant?
-        <select id="exogenous_w" onchange="showEvaluateButton()">
-          <option value="">Select...</option>
-          <option value="yes">Yes</option>
-          <option value="no">No</option>
-        </select>
-      </label>
-    </div>
-
-    <button id="evaluateButton" onclick="evaluateFlowchart()">Evaluate</button>
-
-    <div class="result" id="result">Result will be displayed here</div>
+  <!-- Step 0a1 -->
+  <div class="form-group" id="step0a1">
+    <label>Step 0a: Is it feasible to leverage field or natural experiments, rich observational data, or IVs?</label>
+    <select id="feasible_design" onchange="handleStep0a1Change()">
+      <option value="">Select…</option>
+      <option value="yes">Yes</option>
+      <option value="no">No</option>
+    </select>
   </div>
 
-  <script>
-    function handleStep1Change() {
-      const p_main_continuous = document.getElementById('p_main_continuous').value;
-      const step2 = document.getElementById('step2');
-      const step3 = document.getElementById('step3');
+  <!-- Step 0a2 -->
+  <div class="form-group" id="step0a2">
+    <label>Do experiments balance or rich data capture all confounders? Are IVs strong and do they meet the meet ER condition?</label>
+    <select id="valid_design" onchange="handleStep0a2Change()">
+      <option value="">Select…</option>
+      <option value="yes">Yes</option>
+      <option value="no">No</option>
+    </select>
+  </div>
 
-      if (p_main_continuous === 'no') {
-        document.getElementById('result').style.display = 'block';
-        document.getElementById('result').textContent = "Use SORE (Qian and Xie 2024) if P_main is discrete";
-        step2.style.display = 'none';
-        step3.style.display = 'none';
-      } else if (p_main_continuous === 'yes') {
-        step2.style.display = 'block';
-      }
+  <!-- Step 0b -->
+  <div class="form-group" id="step0b">
+    <label>Step 0b: Consider endogeneity source: are Assumptions 1 & 2 in Table 4 of the copula correction plausible? See item in Table 4</label>
+    <select id="endo_source" onchange="handleStep0bChange()">
+      <option value="">Select…</option>
+      <option value="yes">Yes</option>
+      <option value="no">No</option>
+    </select>
+  </div>
+
+  <!-- Step 1 -->
+  <div class="form-group" id="step1">
+    <label>Step 1: Is Pₘₐᵢₙ continuous?</label>
+    <select id="p_main_continuous" onchange="handleStep1Change()">
+      <option value="">Select…</option>
+      <option value="yes">Yes</option>
+      <option value="no">No</option>
+    </select>
+  </div>
+
+  <!-- Step 2 -->
+  <div class="form-group" id="step2">
+    <label>Step 2: Is Pₘₐᵢₙ normally distributed?</label>
+    <select id="p_main_normal" onchange="handleStep2Change()">
+      <option value="">Select…</option>
+      <option value="yes">Yes</option>
+      <option value="no">No</option>
+    </select>
+  </div>
+
+  <!-- Step 3 -->
+  <div class="form-group" id="step3">
+    <label id="step3a" style="display:none;">
+      Step 3a: Is Pₘₐᵢₙ correlated with any term in W?
+      <select id="correlation" onchange="handleStep3Change()">
+        <option value="">Select…</option>
+        <option value="yes">Yes</option>
+        <option value="no">No</option>
+      </select>
+    </label>
+
+    <label id="step3b" style="display:none;">
+      Step 3b: Is at least one exogenous W continuous, sufficiently non-normal, and sufficiently relevant?
+      <select id="exogenous_w" onchange="handleStep3Change()">
+        <option value="">Select…</option>
+        <option value="yes">Yes</option>
+        <option value="no">No</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="result" id="result"></div>
+</div>
+
+<script>
+  function appendNote(msg) {
+      return `<div style="text-align:center;">${msg}<br>Check potential model nonidentification or misspecification issues. Revise model specification or copula correction strategy if needed.</div>`;
+  }
+
+  function resetDownstream(ids) {
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if(el.tagName === "SELECT") el.value = "";
+      else if(el.tagName === "DIV" || el.tagName === "LABEL") el.style.display = "none";
+    });
+    document.getElementById("result").style.display = "none";
+  }
+
+  function handleStep0a1Change() {
+    resetDownstream([
+        "step0a2","step0b","step1","step2","step3",
+        "valid_design","endo_source",
+        "p_main_continuous","p_main_normal",
+        "correlation","exogenous_w"
+    ]);
+
+    const val = document.getElementById("feasible_design").value;
+    if(val === "yes") {
+        document.getElementById("step0a2").style.display = "block";
+        document.getElementById("valid_design").value = "";
+    } else if(val === "no") {
+        document.getElementById("step0b").style.display = "block";
+        document.getElementById("endo_source").value = "";
+    }
+  }
+
+  function handleStep0a2Change() {
+    resetDownstream(["step0b","step1","step2","step3","p_main_continuous","p_main_normal","correlation","exogenous_w"]);
+    const val = document.getElementById("valid_design").value;
+    if(val === "yes") {
+        document.getElementById("result").style.display = "block";
+        document.getElementById("result").textContent = "Analyze data assuming no endogenous regressors (or use IV for endogenous regressors).";
+    } else if(val === "no") {
+        document.getElementById("step0b").style.display = "block";
+        document.getElementById("endo_source").value = "";
+    }
+  }
+
+  function handleStep0bChange() {
+    resetDownstream(["step1","step2","step3","p_main_continuous","p_main_normal","correlation","exogenous_w"]);
+    const val = document.getElementById("endo_source").value;
+    if(val === "no") {
+        document.getElementById("result").style.display = "block";
+        document.getElementById("result").textContent = "Consider other IV-free methods (LIV, HM, IH, SORE).";
+    } else if(val === "yes") {
+        document.getElementById("step1").style.display = "block";
+        document.getElementById("p_main_continuous").value = "";
+    }
+  }
+
+  function handleStep1Change() {
+    resetDownstream(["step2","step3","p_main_normal","correlation","exogenous_w"]);
+    const val = document.getElementById("p_main_continuous").value;
+    if(val === "no") {
+        document.getElementById("result").style.display = "block";
+        document.getElementById("result").textContent = "Use SORE (Qian & Xie 2024)";
+    } else if(val === "yes") {
+        document.getElementById("step2").style.display = "block";
+        document.getElementById("p_main_normal").value = "";
+    }
+  }
+
+  function handleStep2Change() {
+    resetDownstream(["step3","correlation","exogenous_w"]);
+    const val = document.getElementById("p_main_normal").value;
+    document.getElementById("step3").style.display = "block";
+    document.getElementById("step3a").style.display = val === "no" ? "block" : "none";
+    document.getElementById("step3b").style.display = val === "yes" ? "block" : "none";
+    if(val === "no") document.getElementById("correlation").value = "";
+    if(val === "yes") document.getElementById("exogenous_w").value = "";
+  }
+
+  function handleStep3Change() {
+    const P_norm = document.getElementById("p_main_normal").value === "yes";
+    const corr = document.getElementById("correlation").value === "yes";
+    const w_exog = document.getElementById("exogenous_w").value === "yes";
+
+    let message = "";
+    if(P_norm) {
+        message = w_exog ? "2sCOPE" : "Check potential bias via of 2sCOPE using bootstrap";
+    } else {
+        message = corr ? "2sCOPE or MLE (Haschka or SORE)" : "P&G or BMW";
     }
 
-    function showNextStep() {
-      const p_main_normal = document.getElementById('p_main_normal').value;
-      const step3 = document.getElementById('step3');
-      if (p_main_normal) {
-        step3.style.display = 'block';
-        document.getElementById('step3a').style.display = p_main_normal === 'no' ? 'block' : 'none';
-        document.getElementById('step3b').style.display = p_main_normal === 'yes' ? 'block' : 'none';
-      }
+    if(message) {
+        document.getElementById("result").style.display = "block";
+        document.getElementById("result").innerHTML = appendNote(message);
     }
+  }
 
-    function determineMethod(P_main_continuous, P_main_normal, sum_Ptk_gamma_k_correlated, W_continuous_and_relevant) {
-      if (!P_main_continuous) return "Use SORE (Qian and Xie 2024) if P_main is discrete";
-      if (P_main_normal) return W_continuous_and_relevant ? "2sCOPE" : "Check potential bias using bootstrap";
-      return sum_Ptk_gamma_k_correlated ? "2sCOPE or MLE (Hashka 2022 or SORE)" : "P&G";
-    }
-
-    function evaluateFlowchart() {
-      const p_main_continuous = document.getElementById('p_main_continuous').value === 'yes';
-      const p_main_normal = document.getElementById('p_main_normal').value === 'yes';
-      const correlation = document.getElementById('correlation').value === 'yes';
-      const exogenous_w = document.getElementById('exogenous_w').value === 'yes';
-
-      const result = determineMethod(p_main_continuous, p_main_normal, correlation, exogenous_w);
-
-      const resultDiv = document.getElementById('result');
-      resultDiv.style.display = 'block';
-      resultDiv.textContent = result;
-    }
-
-    document.getElementById('step1').style.display = 'block';
-  </script>
+  document.getElementById("step0a1").style.display = "block";
+</script>
 
 </body>
 </html>
